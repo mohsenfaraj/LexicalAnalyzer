@@ -25,7 +25,7 @@ def main():
     literalChars = ["\"" , "\'"]
 
     def out(text , ln , Coln , block , token):
-        table.add_row([ln , Coln , block , token , text ])
+        table.add_row([ln + 1 , Coln + 1 , block + 1 , token , text ])
 
     def isOperator(char1 , char2) :
         if ((char1 + char2) in doubles):
@@ -35,7 +35,7 @@ def main():
 
     ln = 0
     Coln = 0
-    block = 1
+    block = 0
     while (ln < len(lines)):
         line = lines[ln]
         Coln = 0
@@ -75,6 +75,7 @@ def main():
                         continue
                     # untill you find */ add every thing to comment var
                     if Coln < len(lines[ln])-1 and lines[ln][Coln] == "*" and lines[ln][Coln + 1] == "/":
+                        comment += "*/"
                         Coln += 2
                         out(comment, commentln, commentCol, block, "multi-line Comment")
                         break

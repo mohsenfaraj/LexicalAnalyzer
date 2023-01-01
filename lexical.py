@@ -22,10 +22,9 @@ def main():
     doubles = ["<=" , ">=" , "!=" , "==" , "||" , "&&" , "++" , "--" , "+=" , "-=" ,
         "/="]
     literalChars = ["\"" , "\'"]
+
     def out(text , ln , Coln , block , token):
         table.add_row([ln , Coln , block , token , text ])
-        # writer.write(f"{text}\t{ln}\t{Coln}\t{block}\t{token}\n")
-        return
 
     def isOperator(char1 , char2) :
         if ((char1 + char2) in doubles):
@@ -33,15 +32,6 @@ def main():
         else:
             return False
 
-    def dump (temp , ln , coln , block) :
-        if temp in keywords :
-            out(temp, ln, Coln, block, "keyword")
-        elif (temp[0] == "\"" and temp[-1] == "\"") or (temp[0] == "\'" and temp[-1] == "\'"):
-            out(temp, ln, Coln, block, "literal")
-        elif (temp.isnumeric()):
-            out(temp, ln, Coln, block, "number")
-        else :
-            out(temp, ln, Coln, block, "identifier")
     ln = 0
     Coln = 0
     block = 1
@@ -61,33 +51,34 @@ def main():
                     Coln += 1
                 temp += mustFind
                 Coln += 1
-                dump(temp, ln, literalIndex, block)
+                out(temp, ln, literalIndex, block, "literal")
                 continue
             #skip the white space
-            if char in whiteSpace:
+            elif char in whiteSpace:
                 Coln += 1
                 continue
             #check for single line Comment
-            if char == "/" and line[Coln+1] == "/" :
-                dump(line, ln, Coln, block)
+            elif char == "/" and line[Coln+1] == "/" :
+                out(line, ln, Coln, block, "comment")
                 break
             #check for delimiters
-            if char in delimiters :
+            elif char in delimiters :
                 #increase and decrease block NO. in case if { , }
                 if char == '{' :
                     block += 1
                 elif char == '}' :
                     block -= 1
                 out(char , ln , Coln , block , "delimiter")
+                Coln += 1
             #check for operators
             elif char in Operators :
                 char2 = line[Coln + 1]
                 if (char2 in Operators and isOperator(char, char2)):
                     out(char + char2 , ln , Coln , block , "operator")
                     Coln += 2
-                    continue
                 else:
                     out(char, ln, Coln, block, "operator")
+                    Coln += 1
             #check for number
             elif char.isnumeric():
                 numberIndex = Coln
@@ -96,8 +87,21 @@ def main():
                 while (Coln < len(line) and (temp + line[Coln]).isnumeric()):
                     temp += line[Coln].isnumeric()
                     Coln += 1
-                dump(temp, ln, numberIndex, block)
-            Coln += 1
+                out(temp, ln, numberIndex, block, "number")
+            #check for identifier and keywords
+            elif char.isalpha() or char == "_":
+                wordIndex = Coln
+                temp = char
+                Coln += 1
+                while (Coln < len(line) and (line[Coln].isalpha()
+                or line[Coln].isnumeric() or line[Coln] == "_")):
+                    temp += line[Coln]
+                    Coln += 1
+                #check if word is in keywords
+                if temp in keywords :
+                    out(temp, ln, wordIndex, block, "keyword")
+                else:
+                    out(temp, ln, Coln, block, "identifier")
     writer.write(table.get_string())
     writer.close()
     reader.close()

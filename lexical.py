@@ -6,15 +6,16 @@ table = PrettyTable()
 table.field_names = ["line" , "char" , "block" , "tokenType" , "token"]
 reader = open("input.txt" , "r")
 writer = open("output.txt" , "w")
+keywords = []
+
+#function to add all keywords to array
+def readKeyWords():
+    kwfile = open("keywords.txt" , "r")
+    for line in kwfile :
+        keywords.append(line.strip())
+
 def main():
-    keywords = ['abstract', 'continue', 'class' 'for', 'new',
-        'switch', 'default', 'package', 'synchronized',
-        'boolean', 'do', 'if', 'private', 'this', 'break',
-        'double', 'implements', 'protected', 'throw', 'byte',
-        'else', 'import', 'public', 'throws', 'case', 'instanceof',
-        'return', 'transient', 'catch', 'extends', 'int', 'short',
-        'try', 'char', 'final', 'interface', 'static', 'void', 'class',
-        'finally', 'long', 'volatile', 'float', 'native', 'super', 'while']
+    readKeyWords()
     delimiters = ['[' , ']' , '{' , '}' , ',' , ';' , '(' , ')' , '.']
     whiteSpace = ['\t' , '\n' , ' ']
     Operators = ['+' , '-' , '*' , '/' , '%' , '&' , '<' , '>' , '=' , '|' , '!' ]

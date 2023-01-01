@@ -6,6 +6,7 @@ table = PrettyTable()
 table.field_names = ["line" , "char" , "block" , "tokenType" , "token"]
 reader = open("input.txt" , "r")
 writer = open("output.txt" , "w")
+lines = reader.read().splitlines()
 keywords = []
 
 #function to add all keywords to array
@@ -35,8 +36,8 @@ def main():
     ln = 0
     Coln = 0
     block = 1
-    for line in reader:
-        ln += 1
+    while (ln < len(lines)):
+        line = lines[ln]
         Coln = 0
         while(Coln < len(line)):
             char = line[Coln]
@@ -61,6 +62,25 @@ def main():
             elif char == "/" and line[Coln+1] == "/" :
                 out(line, ln, Coln, block, "comment")
                 break
+            #check for multi-line comment
+            elif char == "/" and line[Coln+1] == "*" :
+                comment = ""
+                commentln = ln
+                commentCol = Coln
+                while (True):
+                    # if reached end of line go for next line
+                    if Coln == len(lines[ln]) :
+                        Coln = 0
+                        ln += 1
+                        continue
+                    # untill you find */ add every thing to comment var
+                    if Coln < len(lines[ln])-1 and lines[ln][Coln] == "*" and lines[ln][Coln + 1] == "/":
+                        Coln += 2
+                        out(comment, commentln, commentCol, block, "multi-line Comment")
+                        break
+                    else :
+                        comment += lines[ln][Coln]
+                        Coln += 1
             #check for delimiters
             elif char in delimiters :
                 #increase and decrease block NO. in case if { , }
@@ -102,6 +122,7 @@ def main():
                     out(temp, ln, wordIndex, block, "keyword")
                 else:
                     out(temp, ln, Coln, block, "identifier")
+        ln += 1
     writer.write(table.get_string())
     writer.close()
     reader.close()

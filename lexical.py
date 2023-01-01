@@ -19,6 +19,8 @@ def main():
     delimiters = ['[' , ']' , '{' , '}' , ',' , ';' , '(' , ')' , '.']
     whiteSpace = ['\t' , '\n' , ' ']
     Operators = ['+' , '-' , '*' , '/' , '%' , '&' , '<' , '>' , '=' , '|' , '!' ]
+    doubles = ["<=" , ">=" , "!=" , "==" , "||" , "&&" , "++" , "--" , "+=" , "-=" ,
+        "/="]
     literalChars = ["\"" , "\'"]
     def out(text , ln , Coln , block , token):
         table.add_row([ln , Coln , block , token , text ])
@@ -26,8 +28,6 @@ def main():
         return
 
     def isOperator(char1 , char2) :
-        doubles = ["<=" , ">=" , "!=" , "==" , "||" , "&&" , "++" , "--" , "+=" , "-=" ,
-        "/="]
         if ((char1 + char2) in doubles):
             return True
         else:
@@ -45,73 +45,59 @@ def main():
     ln = 0
     Coln = 0
     block = 1
-    temp = ""
-    isLiteral = False
-    doubleOp = ""
     for line in reader:
         ln += 1
         Coln = 0
-        charReader = iter(line)
-        for char in charReader:
-            Coln += 1
-            # if len(temp) > 0 and (char in whiteSpace or char in Operators + delimiters + literalChars):
-            #     if isLiteral and char not in literalChars:
-            #         pass
-            #     elif isLiteral and char in literalChars :
-            #         dump(temp, ln, Coln, block)
-            #         isLiteral = False
-            #         temp = ""
-            #     else :
-            #         dump(temp, ln, Coln, block)
-            #         isLiteral = False
-            #         temp = ""
-            if isLiteral :
-                if char in literalChars :
-                    temp += char
-                    dump(temp, ln, Coln, block)
-                    temp = ""
-                    isLiteral = False
-                    continue
-                else :
-                    temp += char
-                    continue
-            #check for delimiters
+        while(Coln < len(line)):
+            char = line[Coln]
+            #check for literal
             if char in literalChars :
-                temp += char
-                isLiteral = True
+                mustFind = char
+                temp = "" + char
+                literalIndex = Coln
+                Coln += 1
+                while (Coln < len(line) and line[Coln] != mustFind):
+                    temp += line[Coln]
+                    Coln += 1
+                temp += mustFind
+                Coln += 1
+                dump(temp, ln, literalIndex, block)
                 continue
+            #skip the white space
             if char in whiteSpace:
-                if isLiteral == True :
-                    temp += char
-                    continue
-                else:
-                    if len(temp) > 0 :
-                        dump(temp, ln, Coln, block)
-                        temp = ""
-                    #Skip the whitespace
-                    continue
+                Coln += 1
+                continue
+            #check for single line Comment
+            if char == "/" and line[Coln+1] == "/" :
+                dump(line, ln, Coln, block)
+                break
+            #check for delimiters
             if char in delimiters :
-                if len(temp) > 0 :
-                    dump(temp, ln, Coln, block)
-                    temp = ""
                 #increase and decrease block NO. in case if { , }
                 if char == '{' :
                     block += 1
                 elif char == '}' :
                     block -= 1
                 out(char , ln , Coln , block , "delimiter")
+            #check for operators
             elif char in Operators :
-                if len(temp) > 0 :
-                    dump(temp, ln, Coln, block)
-                    temp = ""
-                char2 = next(charReader)
+                char2 = line[Coln + 1]
                 if (char2 in Operators and isOperator(char, char2)):
                     out(char + char2 , ln , Coln , block , "operator")
+                    Coln += 2
                     continue
                 else:
                     out(char, ln, Coln, block, "operator")
-            else :
-                temp += char
+            #check for number
+            elif char.isnumeric():
+                numberIndex = Coln
+                temp = "" + char
+                Coln += 1
+                while (Coln < len(line) and (temp + line[Coln]).isnumeric()):
+                    temp += line[Coln].isnumeric()
+                    Coln += 1
+                dump(temp, ln, numberIndex, block)
+            Coln += 1
     writer.write(table.get_string())
     writer.close()
     reader.close()

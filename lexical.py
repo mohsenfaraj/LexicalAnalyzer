@@ -37,6 +37,8 @@ def main():
             out(temp, ln, Coln, block, "keyword")
         elif (temp[0] == "\"" and temp[-1] == "\"") or (temp[0] == "\'" and temp[-1] == "\'"):
             out(temp, ln, Coln, block, "literal")
+        elif (temp.isnumeric()):
+            out(temp, ln, Coln, block, "number")
         else :
             out(temp, ln, Coln, block, "identifier")
     ln = 0
@@ -95,7 +97,7 @@ def main():
                 if char == '{' :
                     block += 1
                 elif char == '}' :
-                    block += 1
+                    block -= 1
                 out(char , ln , Coln , block , "delimiter")
             elif char in Operators :
                 if len(temp) > 0 :

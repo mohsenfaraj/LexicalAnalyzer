@@ -1,0 +1,15 @@
+class HelloWorld {
+    public static void main(string args[]){
+        i ++ ;
+        // this is a comment
+        /*
+        this is multi line
+        comment
+        */
+        int i = 2 + 2 ;
+        if (i == 4) {
+            System.out.println("its right!");
+        }
+        System.out.println("hello world");
+    }
+}
